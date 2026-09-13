@@ -29,8 +29,24 @@ public interface CitaRepository extends JpaRepository <Cita, Long>{
               AND c.horaInicio < :horaFin
               AND c.horaFin > :horaInicio
             """)
-    List<Cita> buscarCruces(
+    List<Cita> buscarCrucesEstilista(
             @Param("estilistaId") Long estilistaId,
+            @Param("fecha") LocalDate fecha,
+            @Param("horaInicio") LocalTime horaInicio,
+            @Param("horaFin") LocalTime horaFin,
+            @Param("estadosActivos") List<EstadoCita> estadosActivos
+    );
+
+    @Query("""
+            SELECT c FROM Cita c
+            WHERE c.clienteId = :clienteId
+              AND c.fecha = :fecha
+              AND c.estado IN :estadosActivos
+              AND c.horaInicio < :horaFin
+              AND c.horaFin > :horaInicio
+            """)
+    List<Cita> buscarCrucesCliente(
+            @Param("clienteId") Long clienteId,
             @Param("fecha") LocalDate fecha,
             @Param("horaInicio") LocalTime horaInicio,
             @Param("horaFin") LocalTime horaFin,

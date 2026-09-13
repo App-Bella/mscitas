@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.pontebella.mscitas.client.UsuarioClient;
 import com.pontebella.mscitas.dto.CitaRequest;
 import com.pontebella.mscitas.dto.CitaResponse;
 import com.pontebella.mscitas.entity.Cita;
@@ -28,12 +29,15 @@ public class CitaServiceImpl implements CitaService {
 
     private final CitaRepository citaRepository;
     private final ServicioService servicioService;
+    private final UsuarioClient usuarioClient;
 
     private static final List<EstadoCita> ESTADOS_ACTIVOS = List.of(EstadoCita.PENDIENTE, EstadoCita.CONFIRMADA);
 
     @Override
     @Transactional
     public CitaResponse crearCita(CitaRequest request) {
+        usuarioClient.validarEstilista(request.getEstilistaId());
+
         Servicio servicio = servicioService.obtenerEntidadPorId(request.getServicioId());
 
         if (!Boolean.TRUE.equals(servicio.getActivo())) {
@@ -43,7 +47,10 @@ public class CitaServiceImpl implements CitaService {
 
         LocalTime horaFin = request.getHoraInicio().plusMinutes(servicio.getDuracionMinutos());
 
-        validarDisponibilidad(request.getEstilistaId(), request.getFecha(),
+        validarDisponibilidadEstilista(request.getEstilistaId(), request.getFecha(),
+                request.getHoraInicio(), horaFin);
+
+        validarDisponibilidadCliente(request.getClienteId(), request.getFecha(),
                 request.getHoraInicio(), horaFin);
 
         Cita cita = Cita.builder()
@@ -135,17 +142,29 @@ public class CitaServiceImpl implements CitaService {
                         "Cita no encontrada con id: " + id));
     }
 
-    private void validarDisponibilidad(Long estilistaId, LocalDate fecha,
-            LocalTime horaInicio, LocalTime horaFin) {
-        List<Cita> cruces = citaRepository.buscarCruces(
-                estilistaId, fecha, horaInicio, horaFin, ESTADOS_ACTIVOS);
+    private void validarDisponibilidadEstilista(Long estilistaId, LocalDate fecha,
+                                             LocalTime horaInicio, LocalTime horaFin) {
+    List<Cita> cruces = citaRepository.buscarCrucesEstilista(
+            estilistaId, fecha, horaInicio, horaFin, ESTADOS_ACTIVOS);
 
-        if (!cruces.isEmpty()) {
-            throw new HorarioNoDisponibleException(
-                    "El estilista ya tiene una cita entre " + horaInicio + " y " + horaFin
-                            + " el " + fecha);
-        }
+    if (!cruces.isEmpty()) {
+        throw new HorarioNoDisponibleException(
+                "El estilista ya tiene una cita entre " + horaInicio + " y " + horaFin
+                        + " el " + fecha);
     }
+}
+
+private void validarDisponibilidadCliente(Long clienteId, LocalDate fecha,
+                                           LocalTime horaInicio, LocalTime horaFin) {
+    List<Cita> cruces = citaRepository.buscarCrucesCliente(
+            clienteId, fecha, horaInicio, horaFin, ESTADOS_ACTIVOS);
+
+    if (!cruces.isEmpty()) {
+        throw new HorarioNoDisponibleException(
+                "Ya tienes una cita agendada entre " + horaInicio + " y " + horaFin
+                        + " el " + fecha);
+    }
+}
 
     private CitaResponse aCitaResponse(Cita cita) {
         return CitaResponse.builder()

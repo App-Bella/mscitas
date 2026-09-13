@@ -25,6 +25,16 @@ public class GlobalExceptionHandler {
         return construirRespuesta(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    @ExceptionHandler(EstilistaNoValidoException.class)
+    public ResponseEntity<ErrorResponse> manejarEstilistaNoValido(EstilistaNoValidoException ex) {
+        return construirRespuesta(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(ServicioNoDisponibleException.class)
+    public ResponseEntity<ErrorResponse> manejarServicioNoDisponible(ServicioNoDisponibleException ex) {
+        return construirRespuesta(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> manejarErrorGeneral(Exception ex) {
         return construirRespuesta(HttpStatus.INTERNAL_SERVER_ERROR,

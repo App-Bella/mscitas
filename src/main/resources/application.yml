@@ -24,6 +24,10 @@ spring:
     date-format: yyyy-MM-dd'T'HH:mm:ss
     time-zone: America/Bogota
 
+app:
+  ms-usuarios:
+    base-url: http://localhost:8081
+
 logging:
   level:
     com.pontebella.mscitas: DEBUG
