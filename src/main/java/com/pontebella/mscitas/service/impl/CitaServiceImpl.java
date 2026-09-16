@@ -35,7 +35,8 @@ public class CitaServiceImpl implements CitaService {
 
     @Override
     @Transactional
-    public CitaResponse crearCita(CitaRequest request) {
+    public CitaResponse crearCita(Long clienteId, CitaRequest request) {
+        
         usuarioClient.validarEstilista(request.getEstilistaId());
 
         Servicio servicio = servicioService.obtenerEntidadPorId(request.getServicioId());
@@ -50,11 +51,11 @@ public class CitaServiceImpl implements CitaService {
         validarDisponibilidadEstilista(request.getEstilistaId(), request.getFecha(),
                 request.getHoraInicio(), horaFin);
 
-        validarDisponibilidadCliente(request.getClienteId(), request.getFecha(),
-                request.getHoraInicio(), horaFin);
+        validarDisponibilidadCliente(clienteId, request.getFecha(),
+            request.getHoraInicio(), horaFin);
 
         Cita cita = Cita.builder()
-                .clienteId(request.getClienteId())
+                .clienteId(clienteId)
                 .estilistaId(request.getEstilistaId())
                 .servicio(servicio)
                 .fecha(request.getFecha())
@@ -136,6 +137,7 @@ public class CitaServiceImpl implements CitaService {
         return aCitaResponse(citaRepository.save(cita));
     }
 
+
     private Cita buscarCitaPorId(Long id) {
         return citaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
@@ -154,7 +156,7 @@ public class CitaServiceImpl implements CitaService {
     }
 }
 
-private void validarDisponibilidadCliente(Long clienteId, LocalDate fecha,
+    private void validarDisponibilidadCliente(Long clienteId, LocalDate fecha,
                                            LocalTime horaInicio, LocalTime horaFin) {
     List<Cita> cruces = citaRepository.buscarCrucesCliente(
             clienteId, fecha, horaInicio, horaFin, ESTADOS_ACTIVOS);

@@ -8,7 +8,7 @@ import com.pontebella.mscitas.dto.CitaResponse;
 
 public interface CitaService {
 
-    CitaResponse crearCita(CitaRequest request);
+    CitaResponse crearCita(Long clienteId, CitaRequest request);
 
     CitaResponse obtenerPorId(Long id);
 

@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CitaRequest {
     
-    private Long clienteId;
     private Long estilistaId;
     private Long servicioId;
     private LocalDate fecha;
