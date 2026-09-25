@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class UsuarioClient {
-    
+
     private static final String ROL_ESTILISTA = "ESTILISTA";
 
     private final RestClient usuariosRestClient;
@@ -37,7 +37,7 @@ public class UsuarioClient {
     private UsuarioValidacionResponse obtenerUsuario(Long id) {
         try {
             return usuariosRestClient.get()
-                    .uri("/usuarios/{id}", id)
+                    .uri("/usuarios/{id}/interno", id)
                     .retrieve()
                     .body(UsuarioValidacionResponse.class);
         } catch (HttpClientErrorException.NotFound ex) {
